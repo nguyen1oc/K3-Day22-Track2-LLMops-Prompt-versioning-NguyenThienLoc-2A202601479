@@ -5,12 +5,21 @@ Tải cấu hình từ file .env và thiết lập biến môi trường LangSmi
     config.py tự động set LANGCHAIN_* vào os.environ khi được import.
 """
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 
+# Đảm bảo stdout/stderr luôn dùng UTF-8 trên Windows khi pipe output
+if sys.stdout.encoding != "utf-8":
+    try:
+        sys.stdout.reconfigure(encoding="utf-8")
+        sys.stderr.reconfigure(encoding="utf-8")
+    except Exception:
+        pass
+
 # Tải .env từ thư mục gốc của project (Lab/)
 _root = Path(__file__).parent.parent
-load_dotenv(_root / ".env")
+load_dotenv(_root / ".env", override=True)
 
 # ── LangSmith — PHẢI set trước khi import LangChain ──────────────────────
 os.environ["LANGCHAIN_TRACING_V2"] = os.getenv("LANGCHAIN_TRACING_V2", "true")

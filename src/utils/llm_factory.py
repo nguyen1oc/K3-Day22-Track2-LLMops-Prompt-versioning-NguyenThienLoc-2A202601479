@@ -105,7 +105,7 @@ def get_embeddings(provider: str = None):
     """
     provider = (provider or config.PROVIDER).lower()
 
-    if provider in ("openai", "openrouter"):
+    if provider == "openai":
         from langchain_openai import OpenAIEmbeddings
         kwargs = {
             "model": config.OPENAI_EMBEDDING_MODEL,
@@ -113,6 +113,19 @@ def get_embeddings(provider: str = None):
         }
         if config.OPENAI_BASE_URL:
             kwargs["base_url"] = config.OPENAI_BASE_URL
+        return OpenAIEmbeddings(**kwargs)
+
+    elif provider == "openrouter":
+        from langchain_openai import OpenAIEmbeddings
+        # OpenRouter hỗ trợ embeddings qua OpenAI-compatible endpoint
+        model_name = config.OPENAI_EMBEDDING_MODEL
+        if not model_name.startswith("openai/") and "/" not in model_name:
+            model_name = f"openai/{model_name}"
+        kwargs = {
+            "model": model_name,
+            "api_key": config.OPENROUTER_API_KEY,
+            "base_url": config.OPENROUTER_BASE_URL,
+        }
         return OpenAIEmbeddings(**kwargs)
 
     elif provider == "gemini":
